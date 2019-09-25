@@ -90,3 +90,35 @@ class Reseau:
 				print("le tableau doit être de taille",len(self.couche))
 		else:
 			print("le réseau est déjà créé, pas de modifs possibles")
+
+	def creer_reseau(self):
+		#on initialise toutes les connexions entre neurones
+		# Les poids sont mis à 0.5 par def
+		#on initialise aussi le tableau des valeurs des neurones à 0
+
+		test =0
+		for j in range(0,len(self.couche)):
+			if self.couche[j]<=0:
+				print("la couche",j,"doit contenir au moins 1 neurone")
+				test=1
+		if test!=1:
+			if self.control==0:
+				self.control=1
+				for i in range(0,len(self.couche)): #boucle sur les couches
+					add=[]
+					add1=[]
+					add_values=[]
+					for j in range(0,self.couche[i]): #boucle sur les neurones de la couche i
+						if i!=len(self.couche)-1: #pas créer de liens à la dernière couche
+							for k in range(0,self.couche[i+1]):
+								add1.append(0.5)
+							add.append(add1)
+							add1=[]
+						add_values.append(0)
+					if i!=len(self.couche)-1:
+						self.link.append(add) #tableau de tableau
+					self.values.append(add_values)
+			else:
+				print("le réseau initialisé")
+		else :
+			print("vous ne pouvez pas lancer l'initialisation")
