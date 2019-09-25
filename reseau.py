@@ -1,3 +1,5 @@
+from fonctions import sigmoide, tangente
+
 class Reseau:
 	def __init__(self,name='Unknown',learn='sigmoide',error=0.001):
 		#nom, fonction d'activation et erreur
