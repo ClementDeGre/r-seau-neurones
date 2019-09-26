@@ -44,8 +44,8 @@ class Reseau:
 	def get_data(self):
 		return(self.get_name(),self.get_name_fun_learn(),self.get_erreur(),self.get_nbr_couche())
 
-	def get_nbr_couches(self):
-		return len(self.couches)
+	def get_nbr_couche(self):
+		return len(self.couche)
 
 	def get_last_couche(self):
 		return self.values[-1]
@@ -122,3 +122,92 @@ class Reseau:
 				print("le réseau initialisé")
 		else :
 			print("vous ne pouvez pas lancer l'initialisation")
+
+	def parcourir(self,tab):
+		#algo de propagation
+		#param = données à tester
+		if self.control==1:
+			if len(tab)==self.couche[0]:  #vérfi que autant d'entrée que le nb de neurone dans couche d'entrée
+				for i in range(0,len(tab)):
+					#on stocke dans la première couche les données d'entrée
+					self.values[0][i]=tab[i]
+				for i in range(1,len(self.values)):  #boucle sur les couches (pas sûr)
+					for j in range(0,len(self.values[i])): #boucle sur les neurones de la couche i
+						var=0
+						for k in range(0,len(self.values[i-1])): #boucle sur les neurones de la couche précédente
+							#on stocke la somme pondérée dans le prochain neurone
+							var+=self.values[i-1][k]*self.link[i-1][k][j]
+						self.values[i][j]=self.fun_learn(var)
+			else:
+				print("la couche d'entrée doit contenir", self.couche[0]," valeurs")
+		else:
+			print("Réseau non initialisé")
+
+	def retropropagation(self,tab):
+		#prend en param les données attendues (apprentissage supervisé)
+
+		if len(tab)==len(self.values[len(self.values)-1]):
+			for i in range(0,len(tab)): #boucle sur nb de neurone de sortie
+				#on stocke dans la dernière couche la soustraction (valeur voulue-valeur trouvée)
+				self.values[len(self.values)-1][i]=tab[i] - self.values[len(self.values)-1][i]
+			for i in range(len(self.values)-1,0,-1): #boucle sur les couches, de la fin au début
+				for j in range(0,len(self.values[i-1])):
+					for k in range(0,len(self.link[i-1][j])):
+						somme=0
+						for l in range(0,len(self.values[i-1])):
+							#on effectue la somme pondérée du neurone vers lequel pointe la connexion
+							somme+=self.values[i-1][l]*self.link[i-1][l][k]
+						somme=self.fun_learn(somme)
+						#mise à jour du poids de la connexion
+						self.link[i-1][j][k]-=self.get_erreur()*(-1*self.values[i][k]*somme*(1-somme)*self.values[i-1][j])
+				for j in range(0,len(self.values[i-1])):
+					somme = 0
+					for k in range(0,len(self.values[i])):
+						#on met à jour les neurones de la prochaine couche en fonction de l'erreur qui se rétropropage
+						somme+=self.values[i][k]*self.link[i-1][j][k]
+					self.values[i-1][j]=somme
+
+	def learn(self,entree,sortie):
+		#premier param est l'ensemble de valeurs à tester
+		#le deuxième est le résultat attendu
+
+		if self.control==1:
+			if len(entree)==self.couche[0] and len(sortie)==self.couche[len(self.couche)-1]:
+				self.parcourir(entree)
+				self.retropropagation(sortie)
+			else:
+				print("la couche d'entrée doit contenir", self.couche[0], " valeurs")
+				print("la couche de sortie doit contenir",self.couche[len(self.couche)-1], " valeurs")
+
+	def print_last_couche(self):
+		print(self.values[len(self.values)-1])
+
+	def print_data(self):
+		tab = self.get_data()
+		print("Nom du reseau :", tab[0],"\nFonction d'apprentissage :", tab[1],"\nValeur d'erreur d'apprentissage :", tab[2],"\nNombre de couche dans le réseau :", tab[3])
+
+
+	def print_all(self):
+		print('Values :')
+		self.print_values()
+		print('\nLink :')
+		self.print_link()
+
+	def print_values(self):
+		i = 1
+		for each in self.values:
+			print("Couche ",i,":")
+			i+=1
+			print(each)
+
+	def print_link(self):
+		i = 1
+		for each in self.link:
+			print("Liens ",i,":")
+			i+=1
+			for k in each:
+				print (k)
+			print()
+    
+	def print_couche(self):
+		print (self.couche)
